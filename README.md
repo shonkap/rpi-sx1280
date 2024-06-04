@@ -1,2 +1,65 @@
-# rpi-sx1280
-Raspberry Pi LoRa library for SX1280
+# rpi-sx1280 - a simple SX1280 LoRa Python library for Raspberry Pi
+
+Easy to install and use, this library provides an essential API for any SX1280 LoRa module connected to your Raspberry Pi via the SPI interface.
+
+## Getting started
+
+## Developers guide
+
+If you'd like to work on the library itself here are a few things you should know.
+
+### Requirements
+
+This library by default uses the following tools, frameworks, etc.:
+
+- `Python 3` - main supported language
+- `hatch` - used as project management tool for Python
+- `GitHub` - used as version control, issue tracking, docs
+
+#### Setup environment
+
+1. Install python locally with pip. On Linux you can do this via: `sudo apt install python3-dev python3-pip`.
+2. Now install `pipx` as it is usually better to install `hatch` in this way to use it globally. `sudo apt install pipx && pipx ensurepath` and re-init the shell session.
+3. Ready to start, setup local environment with `hatch env create`.
+
+#### Running tests
+
+#### Building project
+
+#### Updating version 
+
+This library follows the semver principles. You can use `hatch` to update the version with necessary information.
+
+To bump the version use `hatch version <segment>`.
+
+Here you can find the supported segments docs: [hatch.io > supported segments](https://hatch.pypa.io/latest/version/#supported-segments)
+
+#### Publishing
+
+## Usage
+
+In order to use this library install it first:
+
+```shell
+pip install rpi-sx1280
+```
+
+Now you can use it within your code.
+
+### Basic module initialisation
+
+```python
+from rpi_sx1280 import SX1280
+
+
+spi_idx = 0
+spi_cs = 1
+busy_gpio_idx = 22
+reset_gpio_idx = 17
+
+lora = SX1280(spi_idx, spi_cs, busy_gpio_idx, reset_gpio_idx)
+```
+
+### Tx example
+
+### Rx example

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rpi-sx1280"
+dynamic = ["version"]
+description = 'Raspberry Pi LoRa library for SX1280'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "U.N. Owen", email = "void@some.where" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "spidev",
+  "RPi.GPIO"
+]
+
+[project.urls]
+Documentation = "https://github.com/enthusiastics-ltd/rpi-sx1280#readme"
+Issues = "https://github.com/enthusiastics-ltd/rpi-sx1280/issues"
+Source = "https://github.com/enthusiastics-ltd/rpi-sx1280"
+
+[tool.hatch.version]
+path = "src/rpi_sx1280/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/rpi_sx1280 tests}"
+
+[tool.coverage.run]
+source_pkgs = ["rpi_sx1280", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/rpi_sx1280/__about__.py",
+]
+
+[tool.coverage.paths]
+rpi_sx1280 = ["src/rpi_sx1280", "*/rpi-sx1280/src/rpi_sx1280"]
+tests = ["tests", "*/rpi-sx1280/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]

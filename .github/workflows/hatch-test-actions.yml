@@ -1,9 +1,10 @@
-name: hatch-build-test
+name: Test Hatch 🐍 package
 
 on: [pull_request]
 
 jobs:
   build-and-test:
+    name: Build and test Hatch package 🐍
     runs-on: ubuntu-latest
 
     steps:

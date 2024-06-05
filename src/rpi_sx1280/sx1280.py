@@ -1,71 +1,24 @@
 import time
+import const
 import RPi.GPIO as GPIO
 
-from const import (
-    _FREQ_STEP,
-    _PACKET_CRC_MODE_ON,
-    _PACKET_HEADER_EXPLICIT,
-    _PACKET_IQ_NORMAL,
-    _PACKET_TYPE_LORA,
-    _PACKET_TYPE_RANGING,
-    _RADIO_CLR_IRQSTATUS,
-    _RADIO_GET_IRQSTATUS,
-    _RADIO_GET_PACKETSTATUS,
-    _RADIO_READ_REGISTER,
-    _RADIO_SET_BUFFERBASEADDRESS,
-    _RADIO_SET_DIOIRQPARAMS,
-    _RADIO_SET_MODULATIONPARAMS,
-    _RADIO_SET_PACKETPARAMS,
-    _RADIO_SET_PACKETTYPE,
-    _RADIO_SET_REGULATORMODE,
-    _RADIO_SET_RFFREQUENCY,
-    _RADIO_SET_RX,
-    _RADIO_SET_STANDBY,
-    _RADIO_SET_TX,
-    _RADIO_SET_TXPARAMS,
-    _RADIO_WRITE_BUFFER,
-    _RADIO_WRITE_REGISTER,
-    _RH_BROADCAST_ADDRESS,
-    _irq1Def,
-    _irq2Def,
-)
-from lib.io_pin import IOPin
-from lib.spi_device import SpiDevice
-
-_mode_mask = 0xE0
-_cmd_stat_mask = 0x1C
+from loguru import logger
+from io import IOPin, SpiDevice
 
 
 class SX1280:
     _status = bytearray(1)
     _status_msg = {"mode": "", "cmd": "", "busy": False}
-    _status_mode = {
-        0: "N/A",
-        1: "N/A",
-        2: "STDBY_RC",
-        3: "STDBY_XOSC",
-        4: "FS",
-        5: "Rx",
-        6: "Tx",
-    }
-    _status_cmd = {
-        0: "N/A",
-        1: "Cmd Successful",
-        2: "Data Available",
-        3: "Timed-out",
-        4: "Cmd Error",
-        5: "Failure to Execute Cmd",
-        6: "Tx Done",
-    }
     _BUFFER = bytearray(10)
 
     pcktparams = {
         "PreambleLength": 12,
-        "HeaderType": _PACKET_HEADER_EXPLICIT,
+        "HeaderType": const.PACKET_HEADER_EXPLICIT,
         "PayloadLength": 0x0F,
-        "CrcMode": _PACKET_CRC_MODE_ON,
-        "InvertIQ": _PACKET_IQ_NORMAL,
+        "CrcMode": const.PACKET_CRC_MODE_ON,
+        "InvertIQ": const.PACKET_IQ_NORMAL,
     }
+
     ranging_params = {"SF": 0xA0, "BW": 0x0A, "CR": 0x01}
 
     _device: SpiDevice
@@ -96,16 +49,21 @@ class SX1280:
         2.4 GHz  = 12098953*(52000000/(2**18))
         """
         self.frequency = freq
-        _f = int(float(str(freq) + "E" + "9") / _FREQ_STEP)
+        _f = int(float(str(freq) + "E" + "9") / const.FREQ_STEP)
         if self._debug:
-            print(
+            logger.debug(
                 "\t\tSX1280 freq: {:G} GHz ({} PLL steps)".format(
                     float(str(freq) + "E" + "9"), _f
                 )
             )
         self._send_command(
             bytes(
-                [_RADIO_SET_RFFREQUENCY, (_f >> 16) & 0xFF, (_f >> 8) & 0xFF, _f & 0xFF]
+                [
+                    const.RADIO_SET_RFFREQUENCY,
+                    (_f >> 16) & 0xFF,
+                    (_f >> 8) & 0xFF,
+                    _f & 0xFF,
+                ]
             )
         )
 
@@ -156,8 +114,8 @@ class SX1280:
         self.sequence_number = 0
 
         # RH Header Bytes
-        self.node = _RH_BROADCAST_ADDRESS
-        self.destination = _RH_BROADCAST_ADDRESS
+        self.node = const.RH_BROADCAST_ADDRESS
+        self.destination = const.RH_BROADCAST_ADDRESS
         self.identifier = 0
         self.flags = 0
 
@@ -173,7 +131,8 @@ class SX1280:
         time.sleep(0.05)
         self._reset.high()
         time.sleep(0.03)
-        print("SX1280 has been reset")
+        if self._debug:
+            logger.debug("SX1280 has been reset")
 
     def reset_io(self):
         """
@@ -223,43 +182,43 @@ class SX1280:
         self._send_command(bytes([0xD5]))
 
         if self._debug:
-            print("SX1280 Initialised")
+            logger.debug("SX1280 Initialised")
 
     def set_standby(self, state="STDBY_RC"):
         if self._debug:
-            print("SX1280 Setting device to Standby")
+            logger.debug("SX1280 Setting device to Standby")
         if state == "STDBY_RC":
-            self._send_command(bytes([_RADIO_SET_STANDBY, 0x00]), True)
+            self._send_command(bytes([const.RADIO_SET_STANDBY, 0x00]), True)
         elif state == "STDBY_XOSC":
-            self._send_command(bytes([_RADIO_SET_STANDBY, 0x01]), True)
+            self._send_command(bytes([const.RADIO_SET_STANDBY, 0x01]), True)
 
     def clear_irq_status(self, val=[0xFF, 0xFF]):
         if self._debug:
-            print("Clearing IRQ Status")
-        self._send_command(bytes([_RADIO_CLR_IRQSTATUS] + val), True)
+            logger.debug("Clearing IRQ Status")
+        self._send_command(bytes([const.RADIO_CLR_IRQSTATUS] + val), True)
 
     def set_regulator_mode(self, mode=0x01):
         if self._debug:
-            print("Setting Regulator Mode")
-        self._send_command(bytes([_RADIO_SET_REGULATORMODE, mode]), True)
+            logger.debug("Setting Regulator Mode")
+        self._send_command(bytes([const.RADIO_SET_REGULATORMODE, mode]), True)
 
-    def set_packet_type(self, packetType=_PACKET_TYPE_LORA):
+    def set_packet_type(self, packetType=const.PACKET_TYPE_LORA):
         self._packetType = packetType
         if packetType == "RANGING":
-            self._packetType = _PACKET_TYPE_RANGING
+            self._packetType = const.PACKET_TYPE_RANGING
         if self._debug:
-            print("Setting Packet Type")
-        self._send_command(bytes([_RADIO_SET_PACKETTYPE, self._packetType]), True)
+            logger.debug("Setting Packet Type")
+        self._send_command(bytes([const.RADIO_SET_PACKETTYPE, self._packetType]), True)
         self.packet_type = packetType
 
     def get_packet_status(self):
         # See Table 11-63
         self._packet_status = []
         p_stat = self._send_command(
-            bytes([_RADIO_GET_PACKETSTATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+            bytes([const.RADIO_GET_PACKETSTATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         )
         if self._debug:
-            [print(hex(i) + " ", end="") for i in self._BUFFER[:6]]
+            [logger.debug(hex(i) + " ", end="") for i in self._BUFFER[:6]]
         self.rssiSync = -1 * int(p_stat[2]) / 2
         self.snr = int(p_stat[3]) / 4
         return p_stat
@@ -269,11 +228,11 @@ class SX1280:
         # LoRa with SF7, (BW1600=0x0A -> changed to BW400=0x26), CR 4/5
         # Must set PacketType first! - See Table 13-48,49,50
         if self._debug:
-            print("Setting Modulation parameters")
+            logger.debug("Setting Modulation parameters")
         self._send_command(
-            bytes([_RADIO_SET_MODULATIONPARAMS, modParam1, modParam2, modParam3])
+            bytes([const.RADIO_SET_MODULATIONPARAMS, modParam1, modParam2, modParam3])
         )
-        if self.packet_type == _PACKET_TYPE_LORA:
+        if self.packet_type == const.PACKET_TYPE_LORA:
             self._busywait()
             # If the Spreading Factor selected is SF5 or SF6
             if modParam1 in (0x50, 0x60):
@@ -285,15 +244,15 @@ class SX1280:
             elif modParam1 in (0x90, 0xA0, 0xB0, 0xC0):
                 self._writeRegister(0x09, 0x25, 0x32)
             else:
-                print("Invalid Spreading Factor")
+                logger.debug("Invalid Spreading Factor")
 
     def set_packet_params(self):
         if self._debug:
-            print(self.pcktparams)
+            logger.debug(self.pcktparams)
         self._send_command(
             bytes(
                 [
-                    _RADIO_SET_PACKETPARAMS,
+                    const.RADIO_SET_PACKETPARAMS,
                     self.pcktparams["PreambleLength"],
                     self.pcktparams["HeaderType"],
                     self.pcktparams["PayloadLength"],
@@ -307,19 +266,19 @@ class SX1280:
 
     def set_buffer_base_address(self, txBaseAddress=0x00, rxBaseAddress=0x00):
         if self._debug:
-            print("Setting Buffer Base Address")
+            logger.debug("Setting Buffer Base Address")
         self._txBaseAddress = txBaseAddress
         self._rxBaseAddress = rxBaseAddress
         self._send_command(
-            bytes([_RADIO_SET_BUFFERBASEADDRESS, txBaseAddress, rxBaseAddress])
+            bytes([const.RADIO_SET_BUFFERBASEADDRESS, txBaseAddress, rxBaseAddress])
         )
 
     def set_tx_param(self, power=0x1F, rampTime=0xE0):
         # power=13 dBm (0x1F), rampTime=20us (0xE0). See Table 11-47
         # P=-18+power -18+0x1F=13
         if self._debug:
-            print("Setting Tx Parameters")
-        self._send_command(bytes([_RADIO_SET_TXPARAMS, power, rampTime]))
+            logger.debug("Setting Tx Parameters")
+        self._send_command(bytes([const.RADIO_SET_TXPARAMS, power, rampTime]))
 
     def high_sensitivity_lna(self, enabled=True):
         _reg = self._readRegister(0x8, 0x91)
@@ -346,9 +305,15 @@ class SX1280:
             0000 0000   0000 0010
         """
         if self._debug:
-            print("Setting DIO IRQ Parameters")
+            logger.debug("Setting DIO IRQ Parameters")
         self._send_command(
-            bytes([_RADIO_SET_DIOIRQPARAMS] + irqMask + dio1Mask + dio2Mask + dio3Mask)
+            bytes(
+                [const.RADIO_SET_DIOIRQPARAMS]
+                + irqMask
+                + dio1Mask
+                + dio2Mask
+                + dio3Mask
+            )
         )
 
     def send(
@@ -388,7 +353,7 @@ class SX1280:
             self.rxen.value = False
             self.txen.value = True
             if self._debug:
-                print("\t\ttxen:on, rxen:off")
+                logger.debug("\t\ttxen:on, rxen:off")
         if header:
             payload = bytearray(4)
             if destination is None:  # use attribute
@@ -408,7 +373,7 @@ class SX1280:
             else:  # use kwarg
                 payload[3] = flags
             if self._debug:
-                print("HEADER: {}".format([hex(i) for i in payload]))
+                logger.debug("HEADER: {}".format([hex(i) for i in payload]))
             data = payload + data
             data_len += 4
         # Configure Packet Length
@@ -423,7 +388,7 @@ class SX1280:
             if self.txen:
                 self.txen.value = False
                 if self._debug:
-                    print("\t\ttxen:off, rxen:n/a")
+                    logger.debug("\t\ttxen:off, rxen:n/a")
         return txdone
 
     def write_buffer(self, data):
@@ -433,15 +398,17 @@ class SX1280:
         assert 0 < _len <= 252
         self._busywait()
         with self._device as device:
-            device.writebytes(bytes([_RADIO_WRITE_BUFFER, _offset]) + data)
+            device.writebytes(bytes([const.RADIO_WRITE_BUFFER, _offset]) + data)
 
     def set_tx(self, pBase=0x02, pBaseCount=[0x00, 0x00]):
         # Activate transmit mode with no timeout. Tx mode will stop after first packet sent.
         if self._debug:
-            print("Setting Tx")
+            logger.debug("Setting Tx")
         # self.clear_Irq_Status([8,7])
         self.clear_irq_status()
-        self._send_command(bytes([_RADIO_SET_TX, pBase, pBaseCount[0], pBaseCount[1]]))
+        self._send_command(
+            bytes([const.RADIO_SET_TX, pBase, pBaseCount[0], pBaseCount[1]])
+        )
         self._listen = False
 
     def set_rx(self, pBase=0x02, pBaseCount=[0xFF, 0xFF]):
@@ -451,37 +418,39 @@ class SX1280:
         Time-out duration = pBase * periodBaseCount
         """
         if self._debug:
-            print("\tSetting Rx")
+            logger.debug("\tSetting Rx")
         # self.clear_Irq_Status([8,7])
         self.clear_irq_status()
-        self._send_command(bytes([_RADIO_SET_RX, pBase] + pBaseCount))
+        self._send_command(bytes([const.RADIO_SET_RX, pBase] + pBaseCount))
 
     def get_irq_status(self, clear=[0xFF, 0xFF], parse=False, debug=False):
         # if self._debug:
-        #     print("Getting IRQ Status")
+        #     logger.debug("Getting IRQ Status")
         _irq1, _irq2 = self._send_command(
-            bytes([_RADIO_GET_IRQSTATUS, 0x00, 0x00, 0x00])
+            bytes([const.RADIO_GET_IRQSTATUS, 0x00, 0x00, 0x00])
         )[2:]
 
         if parse:
             if self._debug:
-                print("IRQ[15:8]:{}, IRQ[7:0]:{}".format(hex(_irq1), hex(_irq2)))  #
+                logger.debug(
+                    "IRQ[15:8]:{}, IRQ[7:0]:{}".format(hex(_irq1), hex(_irq2))
+                )  #
             _rslt = []
-            for i, j in zip(reversed("{:08b}".format(_irq1)), _irq1Def):  # [15:8]
+            for i, j in zip(reversed("{:08b}".format(_irq1)), const.IRQ1_DEF):  # [15:8]
                 if int(i):
                     _rslt.append(j)
-            for i, j in zip(reversed("{:08b}".format(_irq2)), _irq2Def):  # [7:0]
+            for i, j in zip(reversed("{:08b}".format(_irq2)), const.IRQ2_DEF):  # [7:0]
                 if int(i):
                     _rslt.append(j)
             if self._debug:
-                print("IRQ Results: {}".format(_rslt))
+                logger.debug("IRQ Results: {}".format(_rslt))
             return (_rslt, hex(_irq1), hex(_irq2))
 
         if clear:
             if clear == True:
                 clear = [0xFF, 0xFF]
             self._send_command(
-                bytes([_RADIO_CLR_IRQSTATUS] + clear)
+                bytes([const.RADIO_CLR_IRQSTATUS] + clear)
             )  # clear IRQ status
         return (_irq1, _irq2)
 
@@ -498,7 +467,7 @@ class SX1280:
                 self.clear_irq_status()
                 return True
         if self._debug:
-            print("TIMEDOUT on DIOwait")
+            logger.debug("TIMEDOUT on DIOwait")
         if hasattr(self, "timeout_handler"):
             self.timeout_handler()
         return False
@@ -507,31 +476,33 @@ class SX1280:
         _t = time.monotonic() + 4
         while time.monotonic() < _t:
             _irq = self.get_irq_status(clear=False)[1] & 1
-            # print(hex(_irq))
+            # logger.debug(hex(_irq))
             if (_irq >> bit) & 1:
                 return True
         if self._debug:
-            print("TIMEDOUT on IRQwait")
+            logger.debug("TIMEDOUT on IRQwait")
         if hasattr(self, "timeout_handler"):
             self.timeout_handler()
         return False
 
     def _writeRegister(self, address1, address2, data):
         if self._debug:
-            print("Writing to:", hex(address1), hex(address2))
-        self._send_command(bytes([_RADIO_WRITE_REGISTER, address1, address2, data]))
+            logger.debug("Writing to:", hex(address1), hex(address2))
+        self._send_command(
+            bytes([const.RADIO_WRITE_REGISTER, address1, address2, data])
+        )
 
     def _readRegister(self, address1, address2):
         if self._debug:
-            print("Reading:", hex(address1), hex(address2))
+            logger.debug("Reading:", hex(address1), hex(address2))
         self._busywait()
         with self._device as device:
             self._BUFFER = device.xfer(
-                bytes([_RADIO_READ_REGISTER, address1, address2])
+                bytes([const.RADIO_READ_REGISTER, address1, address2])
             )
         if self._debug:
-            [print(hex(i), " ", end="") for i in self._BUFFER]
-            print("")
+            [logger.debug(hex(i), " ", end="") for i in self._BUFFER]
+            logger.debug("")
         self._busywait()
         return self._BUFFER[1]  # TODO this seems wrong
 
@@ -542,15 +513,15 @@ class SX1280:
             self._BUFFER = device.xfer(command)
         if stat:
             if self._debug:
-                print(">\tSendCMD CMD:", [hex(i) for i in command])
-                print(">\tSendCMD BUF:", [hex(i) for i in self._BUFFER])
-                print(">\t{}".format(self._convert_status(self._BUFFER[0])))
+                logger.debug(">\tSendCMD CMD:", [hex(i) for i in command])
+                logger.debug(">\tSendCMD BUF:", [hex(i) for i in self._BUFFER])
+                logger.debug(">\t{}".format(self._convert_status(self._BUFFER[0])))
         self._busywait()
         return self._BUFFER[:_size]
 
     def _convert_status(self, status):
-        mode = (status & _mode_mask) >> 5
-        cmdstat = (status & _cmd_stat_mask) >> 2
+        mode = (status & const.MODE_MASK) >> 5
+        cmdstat = (status & const.CMD_STAT_MASK) >> 2
         if mode in self._status_mode:
             self._status_msg["mode"] = self._status_mode[mode]
         if cmdstat in self._status_cmd:
@@ -579,7 +550,7 @@ class SX1280:
             if self._busy.read() == 0:
                 return True
         if self._debug:
-            print("SX1280 timed out on busywait()")
+            logger.debug("SX1280 timed out on busywait()")
         self.timeouts += 1
         if self.timeouts > 5:
             self.timeouts = 0

@@ -25,8 +25,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "spidev",
-  "RPi.GPIO"
+  "spidev>=3.6",
+  "RPi.GPIO>=0.7.1",
+  "loguru>=0.7.2"
 ]
 
 [project.urls]

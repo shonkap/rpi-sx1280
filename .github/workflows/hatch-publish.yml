@@ -1,0 +1,33 @@
+name: hatch-build-test
+
+on:
+    push:
+        branches:
+        - main
+
+jobs:
+    hatch-publish-to-pypi:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up Python 3.11
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.11
+
+            - name: Install Hatch
+              uses: pypa/hatch@install
+
+            - name: Run hatch tests
+              run: hatch test
+
+            - name: Run hatch build
+              run: hatch build
+
+            - name: Publish to PyPI
+              run: hatch publish
+              env:
+                  TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+                  TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

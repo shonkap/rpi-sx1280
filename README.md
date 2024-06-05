@@ -17,8 +17,12 @@ Now you can use it within your code.
 ### Basic module initialisation
 
 ```python
-from rpi_sx1280 import SX1280
+import RPi.GPIO as GPIO
 
+from rpi_sx1280.sx1280 import SX1280
+
+
+GPIO.setmode(GPIO.BCM)
 
 spi_idx = 0
 spi_cs = 1

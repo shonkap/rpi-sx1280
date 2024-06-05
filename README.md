@@ -4,6 +4,32 @@ Easy to install and use, this library provides an essential API for any SX1280 L
 
 ## Getting started
 
+In order to use this library install it first:
+
+```shell
+pip install rpi-sx1280
+```
+
+Now you can use it within your code.
+
+### Basic module initialisation
+
+```python
+from rpi_sx1280 import SX1280
+
+
+spi_idx = 0
+spi_cs = 1
+busy_gpio_idx = 22
+reset_gpio_idx = 17
+
+lora = SX1280(spi_idx, spi_cs, busy_gpio_idx, reset_gpio_idx)
+```
+
+### Tx example
+
+### Rx example
+
 ## Developers guide
 
 If you'd like to work on the library itself here are a few things you should know.
@@ -39,36 +65,8 @@ Here you can find the supported segments docs: [hatch.io > supported segments](h
 In order to publish the current state of the library you need to create a new tag and push it to the repository.
 
 ```shell
-git tag -a v0.1.0 -m "Initial release"
-git push origin v0.1.0
+git tag -a 0.1.0 -m "Initial release"
+git push origin 0.1.0
 ```
 
 And the GitHub Actions will take care of the rest.
-
-## Usage
-
-In order to use this library install it first:
-
-```shell
-pip install rpi-sx1280
-```
-
-Now you can use it within your code.
-
-### Basic module initialisation
-
-```python
-from rpi_sx1280 import SX1280
-
-
-spi_idx = 0
-spi_cs = 1
-busy_gpio_idx = 22
-reset_gpio_idx = 17
-
-lora = SX1280(spi_idx, spi_cs, busy_gpio_idx, reset_gpio_idx)
-```
-
-### Tx example
-
-### Rx example

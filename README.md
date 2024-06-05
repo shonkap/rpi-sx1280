@@ -1,4 +1,6 @@
-# rpi-sx1280 - a simple SX1280 LoRa Python library for Raspberry Pi
+# rpi-sx1280 - SX1280 Python library for Raspberry Pi
+
+[![Publish Python 🐍 distribution 📦 to PyPI and TestPyPI](https://github.com/enthusiastics-ltd/rpi-sx1280/actions/workflows/hatch-publish.yml/badge.svg)](https://github.com/enthusiastics-ltd/rpi-sx1280/actions/workflows/hatch-publish.yml)
 
 Easy to install and use, this library provides an essential API for any SX1280 LoRa module connected to your Raspberry Pi via the SPI interface.
 
@@ -25,10 +27,6 @@ reset_gpio_idx = 17
 
 lora = SX1280(spi_idx, spi_cs, busy_gpio_idx, reset_gpio_idx)
 ```
-
-### Tx example
-
-### Rx example
 
 ## Developers guide
 

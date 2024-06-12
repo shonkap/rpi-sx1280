@@ -48,25 +48,33 @@ class IOPin:
         if self._dir == GPIO.IN:
             return GPIO.input(self._pin)
         else:
-            logger.error("IO direction does not allow read() operation")
+            logger.error(
+                f"IO direction does not allow read() operation; pin: {self._pin}"
+            )
 
     def write(self, state):
         if self._dir == GPIO.OUT:
             if state != GPIO.HIGH and state != GPIO.LOW:
-                logger.error("State value not supported")
+                logger.error(f"State value not supported; pin: {self._pin}")
             else:
                 GPIO.output(self._pin, state)
         else:
-            logger.error("IO direction does not allow write() operation")
+            logger.error(
+                f"IO direction does not allow write() operation; pin: {self._pin}"
+            )
 
     def low(self):
         if self._dir == GPIO.OUT:
             GPIO.output(self._pin, GPIO.LOW)
         else:
-            logger.error("IO direction does not allow low() operation")
+            logger.error(
+                f"IO direction does not allow low() operation; pin: {self._pin}"
+            )
 
     def high(self):
         if self._dir == GPIO.OUT:
             GPIO.output(self._pin, GPIO.HIGH)
         else:
-            logger.error("IO direction does not allow high() operation")
+            logger.error(
+                f"IO direction does not allow high() operation; pin: {self._pin}"
+            )

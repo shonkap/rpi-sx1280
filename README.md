@@ -2,6 +2,9 @@
 
 [![Publish Python 🐍 distribution 📦 to PyPI and TestPyPI](https://github.com/enthusiastics-ltd/rpi-sx1280/actions/workflows/hatch-publish.yml/badge.svg)](https://github.com/enthusiastics-ltd/rpi-sx1280/actions/workflows/hatch-publish.yml)
 
+> [!IMPORTANT]
+> This library is in active development and has no stable release yet. Please, expect significant changes in the future as we work on the first major version release.
+
 Easy to install and use, this library provides an essential API for any SX1280 LoRa module connected to your Raspberry Pi via the SPI interface.
 
 ## Getting started

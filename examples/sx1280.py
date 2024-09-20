@@ -646,6 +646,7 @@ class SX128XLT:
         if not wait:
             return self._txPacketL
         
+        print(self._TXDonePin.read())
         while not self._TXDonePin.read():
             pass
 

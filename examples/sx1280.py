@@ -46,7 +46,7 @@ class SX128XLT:
         self._rfBusy = IOPin(pin_rfbusy, GPIO.IN)
 
         if pin_nreset is not None:
-            self._nReset = IOPin(pin_nreset, GPIO.OUT, GPIO.HIGH)
+            self._nReset = IOPin(pin_nreset, GPIO.OUT, GPIO.LOW)
             self._nReset.low()
 
         if pin_dio1:
@@ -270,6 +270,7 @@ class SX128XLT:
             time.sleep(0.05)
             self._nReset.high()
             time.sleep(0.02)
+            self._nReset.low()
 
     def checkDevice(self):
         self._spiNSS.low()

@@ -69,10 +69,6 @@ class SX128XLT:
             self._rxtxpinmode = False
 
         self.resetDevice()
-        self._deviceConnected = self.checkDevice()
-
-        if not self._deviceConnected:
-            logger.error("Device Not Found")
 
     def isConnected(self):
         return self._deviceConnected
@@ -153,7 +149,12 @@ class SX128XLT:
         self.setDioIrqParams(
             const.IRQ_RADIO_ALL, (const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT), 0, 0
         )
-        self.setHighSensitivity() #this needs help
+        self.setHighSensitivity()
+
+        self._deviceConnected = self.checkDevice()
+
+        if not self._deviceConnected:
+            logger.error("Device Not Found")
 
     def setupFLRC(
         self,

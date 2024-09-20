@@ -40,10 +40,9 @@ class SX128XLT:
         device=const.DEVICE_SX1280,
     ):
         self._device_ID = device
-
         self._device = SpiDevice(spi_idx, spi_cs)
-        self._spiNSS = IOPin(spi_nss, GPIO.OUT)
-        self._spiNSS.high()
+        self._spiNSS = IOPin(spi_nss, GPIO.OUT, GPIO.HIGH)
+
         self._rfBusy = IOPin(pin_rfbusy, GPIO.IN)
 
         if pin_nreset is not None:
@@ -350,23 +349,22 @@ class SX128XLT:
 
         self.writeRegister(0x93C, 0x1)
 
-        match modParam1:
-            case const.LORA_SF5:
-                self.writeRegister(0x925, 0x1E)
-            case const.LORA_SF6:
-                self.writeRegister(0x925, 0x1E)
-            case const.LORA_SF7:
-                self.writeRegister(0x925, 0x37)
-            case const.LORA_SF8:
-                self.writeRegister(0x925, 0x37)
-            case const.LORA_SF9:
-                self.writeRegister(0x925, 0x32)
-            case const.LORA_SF10:
-                self.writeRegister(0x925, 0x32)
-            case const.LORA_SF11:
-                self.writeRegister(0x925, 0x32)
-            case const.LORA_SF12:
-                self.writeRegister(0x925, 0x32)
+        if modParam1 == const.LORA_SF5:
+            self.writeRegister(0x925, 0x1E)
+        elif modParam1 == const.LORA_SF6:
+            self.writeRegister(0x925, 0x1E)
+        elif modParam1 == const.LORA_SF7:
+            self.writeRegister(0x925, 0x37)
+        elif modParam1 == const.LORA_SF8:
+            self.writeRegister(0x925, 0x37)
+        elif modParam1 == const.LORA_SF9:
+            self.writeRegister(0x925, 0x32)
+        elif modParam1 == const.LORA_SF10:
+            self.writeRegister(0x925, 0x32)
+        elif modParam1 == const.LORA_SF11:
+            self.writeRegister(0x925, 0x32)
+        elif modParam1 == const.LORA_SF12:
+            self.writeRegister(0x925, 0x32)
 
     def setPacketParams(
         self,
@@ -475,13 +473,13 @@ class SX128XLT:
         logger.info(string_builder)
 
     def printDevice(self):
-        match self._device_ID:
-            case const.DEVICE_SX1280:
-                logger.info("Device: SX1280")
-            case const.DEVICE_SX1281:
-                logger.info("Device: SX1281")
-            case _:
-                logger.error("Device: Unknown")
+
+        if self._device_ID == const.DEVICE_SX1280:
+            logger.info("Device: SX1280")
+        if self._device_ID == const.DEVICE_SX1281:
+            logger.info("Device: SX1281")
+        else:
+            logger.error("Device: Unknown")
 
     def getFreqInt(self):
         msb = 0
@@ -510,17 +508,17 @@ class SX128XLT:
         return self.savedModParam1 >> 4
 
     def returnBandwidth(self, data: int):
-        match data:
-            case const.LORA_BW_0200:
-                return 203125
-            case const.LORA_BW_0400:
-                return 406250
-            case const.LORA_BW_0800:
-                return 812500
-            case const.LORA_BW_1600:
-                return 1625000
-            case _:
-                return 0
+
+        if data == const.LORA_BW_0200:
+            return 203125
+        elif data == const.LORA_BW_0400:
+            return 406250
+        elif data == const.LORA_BW_0800:
+            return 812500
+        elif data == const.LORA_BW_1600:
+            return 1625000
+        else:
+            return 0
 
     def getLoRaCodingRate(self):
         return self.savedModParam3
@@ -546,13 +544,14 @@ class SX128XLT:
             or self.savedPacketType == const.PACKET_TYPE_RANGING
         ):
             string_builder += f", Preamble_{self.getPreamble()}"
-            match self.savedPacketParam2:
-                case const.LORA_PACKET_VARIABLE_LENGTH:
-                    string_builder += ", Explicit"
-                case const.LORA_PACKET_FIXED_LENGTH:
-                    string_builder += ", Implicit"
-                case _:
-                    string_builder += ", Unknown"
+            
+            if self.savedPacketParam2 == const.LORA_PACKET_VARIABLE_LENGTH:
+                string_builder += ", Explicit"
+            elif self.savedPacketParam2 == const.LORA_PACKET_FIXED_LENGTH:
+                string_builder += ", Implicit"
+            else:
+                string_builder += ", Unknown"
+
             string_builder += f", PayloadL_{self.savedPacketParam3}, {self.savedPacketParam4}, {self.getInvertIQ()}"
             if self.getLNAGain() == 0xC0:
                 string_builder += ", HighSensitivity"
@@ -657,6 +656,7 @@ class SX128XLT:
     def setTxParams(self, txPower: int, rampTime: int):
         self.savedTXPower = txPower
         self.writeCommand(
+            const.RADIO_SET_TXPARAMS,
             [
                 (txPower + 18) & 0xFF,
                 rampTime & 0xFF,

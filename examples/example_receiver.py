@@ -9,7 +9,7 @@ from loguru import logger
 import const
 from sx1280 import SX128XLT
 
-
+#zero@zero.local
 lora: SX128XLT = None
 
 txPower = 10

@@ -271,10 +271,12 @@ class SX128XLT:
             time.sleep(0.02)
 
     def checkDevice(self):
+        self._spiNSS.low()
         regData1 = self.readRegister(0x0908)
         self.writeRegister(0x0908, regData1 + 1)
         regData2 = self.readRegister(0x0908)
         self.writeRegister(0x0908, regData1)
+        self._spiNSS.high()
 
         return regData2 == (regData1 + 1)
 
@@ -454,6 +456,7 @@ class SX128XLT:
         )
 
     def printModemSettings(self):
+        logger.info("here")
         self.printDevice()
 
         string_builder = "Modem Settings:"
@@ -533,6 +536,7 @@ class SX128XLT:
         return self.readRegister(const.REG_LNA_REGIME) & 0xC0
 
     def printOperatingSettings(self):
+        logger.info("here")
         self.printDevice()
 
         string_builder = "Operating Settings:"

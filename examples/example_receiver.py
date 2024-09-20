@@ -28,7 +28,7 @@ def init():
     GPIO.setmode(GPIO.BCM)
 
     # initialise the SX1280 module
-    lora = SX128XLT(0, 0, 8, 22, pin_nreset = 23, pin_rxen = 25,pin_txen = 24, pin_dio1 = 27)
+    lora = SX128XLT(0, 0, 8, 22, pin_nreset = 23, pin_rxen = 25,pin_txen = 24, pin_dio1 = 2)
     logger.info("init done")
     # setup the LoRa configuration
     lora.setupLoRa(freq, offset, spreading_factor, bandwidth, code_rate)

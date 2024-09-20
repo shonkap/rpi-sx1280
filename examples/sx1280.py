@@ -457,7 +457,6 @@ class SX128XLT:
         )
 
     def printModemSettings(self):
-        logger.info("here")
         self.printDevice()
 
         string_builder = "Modem Settings:"
@@ -480,7 +479,7 @@ class SX128XLT:
 
         if self._device_ID == const.DEVICE_SX1280:
             logger.info("Device: SX1280")
-        if self._device_ID == const.DEVICE_SX1281:
+        elif self._device_ID == const.DEVICE_SX1281:
             logger.info("Device: SX1281")
         else:
             logger.error("Device: Unknown")
@@ -537,7 +536,6 @@ class SX128XLT:
         return self.readRegister(const.REG_LNA_REGIME) & 0xC0
 
     def printOperatingSettings(self):
-        logger.info("here1")
         self.printDevice()
 
         string_builder = "Operating Settings:"

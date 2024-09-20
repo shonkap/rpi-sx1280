@@ -646,8 +646,9 @@ class SX128XLT:
         if not wait:
             return self._txPacketL
         
-        print(self._TXDonePin.read())
         while not self._TXDonePin.read():
+            print(self._TXDonePin.read())
+            time.sleep(.2)
             pass
 
         self.setMode(const.MODE_STDBY_RC)

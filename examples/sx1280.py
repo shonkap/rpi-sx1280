@@ -644,11 +644,8 @@ class SX128XLT:
         if not wait:
             return self._txPacketL
         
-        if False:
-            while not self._TXDonePin.read():
-                pass
-        else:
-            time.sleep(0.4)
+        while not self._TXDonePin.read():
+            pass
 
         self.setMode(const.MODE_STDBY_RC)
 
@@ -709,11 +706,8 @@ class SX128XLT:
         if not wait:
             return []
         
-        if False:
-            while not self._RXDonePin.read():
-                pass
-        else:
-            time.sleep(1)
+        while not self._RXDonePin.read():
+            pass
 
         # stop further packet reception
         self.setMode(const.MODE_STDBY_RC)
@@ -763,11 +757,8 @@ class SX128XLT:
         if not wait:
             return 0
         
-        if False:
-            while not self._RXDonePin.read():
-                pass
-        else:
-            time.sleep(1)
+        while not self._RXDonePin.read():
+            pass
 
         # stop further packet reception
         self.setMode(const.MODE_STDBY_RC)

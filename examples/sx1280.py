@@ -429,12 +429,6 @@ class SX128XLT:
         self.writeCommand(
             const.RADIO_SET_DIOIRQPARAMS,
             [
-                0x40, 0x01, 0x40, 0x01, 0x00, 0x00, 0x00, 0x00
-                
-            ],
-        )
-
-        '''
                 (irqMask >> 8) & 0xFF,
                 irqMask & 0xFF,
                 (dio1Mask >> 8) & 0xFF,
@@ -442,7 +436,10 @@ class SX128XLT:
                 (dio2Mask >> 8) & 0xFF,
                 dio2Mask & 0xFF,
                 (dio3Mask >> 8) & 0xFF,
-                dio3Mask & 0xFF,'''
+                dio3Mask & 0xFF
+                
+            ],
+        )
 
     def setSyncWord1(self, syncword):
         logger.debug(f"setSyncWord: {syncword}")

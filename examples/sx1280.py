@@ -416,6 +416,8 @@ class SX128XLT:
                 ],
             )
 
+    #const.IRQ_RADIO_ALL, const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT, 0, 0
+    #       0xFFFF          0x0001 0x4000, 0, 0
     def setDioIrqParams(
         self, irqMask: int, dio1Mask: int, dio2Mask: int, dio3Mask: int
     ):
@@ -639,7 +641,8 @@ class SX128XLT:
         self.setPayloadLength(self._txPacketL)
         self.setTxParams(txPower, const.RAMP_TIME)
         self.setDioIrqParams(
-            const.IRQ_RADIO_ALL, const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT, 0, 0
+            const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT, const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT, 0, 0
+            #const.IRQ_RADIO_ALL, const.IRQ_TX_DONE + const.IRQ_RX_TX_TIMEOUT, 0, 0
         )
         self.setTx(timeout)
 

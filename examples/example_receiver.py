@@ -4,8 +4,10 @@ import time
 import RPi.GPIO as GPIO
 from loguru import logger
 
-from rpi_sx1280 import const
-from rpi_sx1280.sx1280 import SX128XLT
+#from rpi_sx1280 import const
+#from rpi_sx1280.sx1280 import SX128XLT
+import const
+from sx1280 import SX128XLT
 
 
 lora: SX128XLT = None
@@ -26,12 +28,13 @@ def init():
     GPIO.setmode(GPIO.BCM)
 
     # initialise the SX1280 module
-    lora = SX128XLT(0, 1, 23, 27, 16, 17, 18)
-
+    lora = SX128XLT(0, 0, 22, 23, pin_rxen = 25,pin_txen = 24)
+    logger.info("init done")
     # setup the LoRa configuration
-    lora.setupLoRa(freq, offset, bandwidth, spreading_factor, code_rate)
+    lora.setupLoRa(freq, offset, spreading_factor, bandwidth, code_rate)
+    logger.info("init lora half done")
     lora.setBufferBaseAddress(1, 0)
-
+    logger.info("init lora done")
     # debug configuration values
     lora.printModemSettings()
     lora.printOperatingSettings()

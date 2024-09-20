@@ -32,7 +32,7 @@ def init():
     lora = SX128XLT(0, 0, 22, 4, 24, 25, 26)
 
     # setup the LoRa configuration
-    lora.setupLoRa(freq, offset, bandwidth, spreading_factor, code_rate)
+    lora.setupLoRa(freq, offset, spreading_factor, bandwidth, code_rate)
     lora.setBufferBaseAddress(0, 1)
 
     # debug configuration values

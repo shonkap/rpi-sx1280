@@ -646,10 +646,11 @@ class SX128XLT:
         if not wait:
             return self._txPacketL
         
+        '''
         while not self._TXDonePin.read():
-            print(self._TXDonePin.read())
-            time.sleep(.2)
             pass
+        '''
+        time.sleep(1)
 
         self.setMode(const.MODE_STDBY_RC)
 

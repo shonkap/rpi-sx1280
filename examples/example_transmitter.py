@@ -31,6 +31,7 @@ def init():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.add_event_detect(27, GPIO.RISING, callback=interrupt_callback)
+    print("Test")
 
     # initialise the SX1280 module
     lora = SX128XLT(0, 0, 8, 22, pin_nreset = 23, pin_rxen = 25,pin_txen = 24, pin_dio1 = 27)

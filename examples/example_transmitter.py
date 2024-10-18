@@ -54,7 +54,7 @@ def loop():
 
     startMs = time.time()
 
-    txPacketL = lora.transmit(buff, 1000, txPower, const.WAIT_TX)
+    txPacketL = lora.transmit(buff, 10000, txPower, const.WAIT_TX)
 
     if txPacketL > 0:
         endMs = time.time()

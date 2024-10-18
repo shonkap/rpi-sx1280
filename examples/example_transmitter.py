@@ -29,6 +29,8 @@ def init():
 
     # configure RPi GPIO
     GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pin_dio1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(27, GPIO.RISING, callback=interrupt_callback)
 
     # initialise the SX1280 module
     lora = SX128XLT(0, 0, 8, 22, pin_nreset = 23, pin_rxen = 25,pin_txen = 24, pin_dio1 = 27)
@@ -43,7 +45,8 @@ def init():
     lora.printRegisters(0x900, 0x9FF)
 
     logger.info("~~~ LoRa SX1280 Transmitter is Ready ~~~")
-
+def interrupt_callback(channel):
+        print(f"Interrupt detected on pin {channel}")
 
 def loop():
     global lora

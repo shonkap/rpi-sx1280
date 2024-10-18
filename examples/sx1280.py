@@ -50,7 +50,7 @@ class SX128XLT:
             #self._nReset.low()
 
         if pin_dio1:
-            GPIO.setup(pin_dio1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            #GPIO.setup(pin_dio1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             #GPIO.add_event_detect(pin_dio1, GPIO.RISING, callback=interrupt_callback)
             #self._dio1 = IOPin(pin_dio1, GPIO.IN)
 

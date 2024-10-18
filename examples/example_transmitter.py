@@ -48,8 +48,10 @@ def init():
 
     logger.info("~~~ LoRa SX1280 Transmitter is Ready ~~~")
 def interrupt_callback(channel):
-        print(f"Interrupt detected on pin {channel}")
+    logger.info("interrupt")
+    print(f"Interrupt detected on pin {channel}")
 def interrupt_callbackRise(channel):
+    logger.info("interrupt riseing")
     print(f"Rising Interrupt detected on pin {channel}")
 
 def loop():

@@ -77,6 +77,8 @@ if __name__ == "__main__":
             sys.exit(130)
         except SystemExit:
             os._exit(130)
+    except Exception as e:
+        print(f"An error occurred: {e}")
     except:
         GPIO.cleanup()
         logger.error("Unexpected error:", sys.exc_info()[0])

@@ -31,6 +31,7 @@ def init():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.add_event_detect(27, GPIO.FALLING, callback=interrupt_callback)
+    GPIO.add_event_detect(27, GPIO.Rising, callback=interrupt_callbackRise)
     print("Test")
 
     # initialise the SX1280 module
@@ -48,6 +49,8 @@ def init():
     logger.info("~~~ LoRa SX1280 Transmitter is Ready ~~~")
 def interrupt_callback(channel):
         print(f"Interrupt detected on pin {channel}")
+def interrupt_callbackRise(channel):
+    print(f"Rising Interrupt detected on pin {channel}")
 
 def loop():
     global lora

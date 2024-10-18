@@ -19,8 +19,8 @@ class SX128XLT:
     _dio2: Optional[IOPin]
     _dio3: Optional[IOPin]
 
-    _TXDonePin: False #Optional[IOPin]
-    _RXDonePin: False #Optional[IOPin]
+    _TXDonePin: Optional[IOPin]
+    _RXDonePin: Optional[IOPin]
 
     _rxtxpinmode: bool = False
     _deviceConnected: bool = False
@@ -52,10 +52,10 @@ class SX128XLT:
         if pin_dio1:
             #GPIO.setup(pin_dio1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             #GPIO.add_event_detect(pin_dio1, GPIO.RISING, callback=interrupt_callback)
-            #self._dio1 = IOPin(pin_dio1, GPIO.IN)
+            self._dio1 = IOPin(pin_dio1, GPIO.IN)
 
-            self._TXDonePin = False #= self._dio1
-            self._RXDonePin = False #= self._dio1
+            self._TXDonePin = self._dio1
+            self._RXDonePin = self._dio1
 
         if pin_dio2:
             self._dio2 = IOPin(pin_dio2, GPIO.IN)
@@ -656,7 +656,7 @@ class SX128XLT:
             return self._txPacketL
         
         
-        while not self._TXDonePin == False: #.read():
+        while not self._TXDonePin.read():
             pass
 
         self.setMode(const.MODE_STDBY_RC)
@@ -719,7 +719,7 @@ class SX128XLT:
         if not wait:
             return []
         
-        while not self._RXDonePin == False: #.read():
+        while not self._RXDonePin.read():
             pass
 
         # stop further packet reception
@@ -770,7 +770,7 @@ class SX128XLT:
         if not wait:
             return 0
         
-        while not self._RXDonePin == False: #.read():
+        while not self._RXDonePin.read():
             pass
 
         # stop further packet reception

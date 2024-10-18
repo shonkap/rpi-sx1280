@@ -30,8 +30,8 @@ def init():
     # configure RPi GPIO
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    #GPIO.add_event_detect(27, GPIO.FALLING, callback=interrupt_callback)
-    GPIO.add_event_detect(27, GPIO.RISING, callback=interrupt_callbackRise)
+    GPIO.add_event_detect(27, GPIO.FALLING, callback=interrupt_callback)
+    #GPIO.add_event_detect(27, GPIO.RISING, callback=interrupt_callbackRise)
     print("Test")
 
     # initialise the SX1280 module

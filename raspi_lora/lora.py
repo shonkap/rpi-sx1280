@@ -1,3 +1,6 @@
+import sys
+import select
+
 import time
 from enum import Enum
 import math
@@ -296,4 +299,48 @@ class LoRa(object):
     def close(self):
         GPIO.cleanup()
         self.spi.close()
+
+#GPIO.setmode(GPIO.BCM)
+#GPIO.setup(25, GPIO.OUT)
+
+class LoRaOver(LoRa):
+        def on_recv(self, message):
+                print("From:",message.header_from)
+
+#GPIO.output(25,0)
+#time.sleep(2)
+
+try:
+        lora = LoRaOver(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_po>
+        #lora.on_recv = on_recv
+except Exception as e:
+        print(e)
+        GPIO.cleanup()
+        exit()
+
+lora.set_mode_rx()
+
+message = "Hello there!"
+status = lora.send_to_wait(message, 255, retries=2) #255 is all
+if status is True:
+        print("Message Sent!")
+else:
+        print("No acknowledge from recipient")
+
+print("Press Enter to continue...");
+i = 0
+while True:
+        #lora._handle_interrupt(1)
+        if not (lora._spi_read(0x13) == 0):
+                #lora._handle_interrupt(1)
+                print(lora._spi_read(0x12))
+                print("stuff")
+                #break
+
+        if select.select([sys.stdin],[],[], 0.1)[0]:
+                key = sys.stdin.read(1)
+                if key == '\n':
+                        break
+
+
 

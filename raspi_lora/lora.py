@@ -10,7 +10,7 @@ from random import random
 import RPi.GPIO as GPIO
 import spidev
 
-from .constants import *
+from constants import *
 
 
 class ModemConfig(Enum):
@@ -240,7 +240,6 @@ class LoRa(object):
 
 	def _handle_interrupt(self, channel):
 		irq_flags = self._spi_read(REG_12_IRQ_FLAGS)
-
 		if self._mode == MODE_RXCONTINUOUS and (irq_flags & RX_DONE):
 			packet_len = self._spi_read(REG_13_RX_NB_BYTES)
 			self._spi_write(REG_0D_FIFO_ADDR_PTR, self._spi_read(REG_10_FIFO_RX_CURRENT_ADDR))
@@ -268,7 +267,7 @@ class LoRa(object):
 				header_flags = packet[3]
 				message = bytes(packet[4:]) if packet_len > 4 else b''
 
-				if self._this_address != header_to or self._receive_all is True:
+				if self._this_address != header_to and not self._receive_all is True:
 					return
 
 				if self.crypto and len(message) % 16 == 0:
@@ -303,16 +302,16 @@ class LoRa(object):
 #GPIO.setmode(GPIO.BCM)
 #GPIO.setup(25, GPIO.OUT)
 
-class LoRaOver(LoRa):
-		def on_recv(self, message):
-				print("From:",message.header_from)
+def on_recv(message):
+	print("From:",message.header_from)
+	print("Message:",message.message)
 
 #GPIO.output(25,0)
 #time.sleep(2)
 
 try:
-		lora = LoRaOver(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_power=14, acks=True, receive_all=True)
-		#lora.on_recv = on_recv
+		lora = LoRa(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_power=14, acks=True, receive_all=True)
+		lora.on_recv = on_recv
 except Exception as e:
 		print(e)
 		GPIO.cleanup()
@@ -338,6 +337,8 @@ while True:
 				#break
 
 		if select.select([sys.stdin],[],[], 0.1)[0]:
-				key = sys.stdin.read(1)
-				if key == '\n':
-						break
+			lineData = sys.stdin.readline().strip()
+			if lineData.lower() == "quit":
+				break
+			lora.send_to_wait(lineData,255,retries=2)
+			print(lineData)

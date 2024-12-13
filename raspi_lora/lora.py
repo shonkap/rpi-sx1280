@@ -50,7 +50,7 @@ class LoRa(object):
         self._freq = freq
         self._tx_power = tx_power
         self._modem_config = modem_config
-        self._receivel = receivel
+        self._receivel = receive
         self._acks = acks
 
         self._my_address = my_address

@@ -23,10 +23,8 @@ except Exception as e:
 newlora.set_mode_rx()
 
 message = "Hello there!"
-status = newlora.send_to_wait(message, 255, retries=2) #255 is all
-if status is True:
-		print("Message Sent!")
-else:
+status = newlora.send_to_wait(message, 5, retries=2) #255 is all
+if status is False:
 		print("No acknowledge from recipient")
 
 print("Press Enter to continue...");
@@ -37,7 +35,9 @@ while True:
 			lineData = sys.stdin.readline().strip()
 			if lineData.lower() == "quit":
 				break
-			newlora.send_to_wait(lineData,255,retries=2)
+			newlora.send_to_wait(lineData,5,retries=2)
+			if status is False:
+					print("No acknowledge from recipient")
 			print(lineData)
 newlora.close()
 

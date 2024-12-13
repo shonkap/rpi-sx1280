@@ -268,6 +268,7 @@ class LoRa(object):
 				message = bytes(packet[4:]) if packet_len > 4 else b''
 
 				if self._this_address != header_to and not self._receive_all is True:
+					self.set_mode_rx()
 					return
 
 				if self.crypto and len(message) % 16 == 0:

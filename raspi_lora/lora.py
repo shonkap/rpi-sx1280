@@ -75,12 +75,11 @@ class LoRa(object):
 			raise ValueError(f"Invalid default mode: {default_mode}")
 		
 		# Setup the module
-		self._interruptReceived = False
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(25,GPIO.OUT)
 		GPIO.output(25,255)
 		GPIO.setup(self._interrupt_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._interrupt) #_handle_interrupt)
+		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._handle_interrupt)
 
 		# reset the board
 		if reset_pin:
@@ -138,10 +137,6 @@ class LoRa(object):
 	def on_recv(self, message):
 		# This should be overridden by the user
 		pass
-
-	def _interrupt(self, channel):
-		print("interrupt")
-		self._interruptReceived = True
 
 	def set_mode_sleep(self):
 		if self._mode != MODE_SLEEP:
@@ -304,7 +299,7 @@ class LoRa(object):
 
 	def _handle_interrupt(self, channel):
 		irq_flags = self._spi_read(REG_12_IRQ_FLAGS)
-
+		print("interrupt")
 		if self._mode == MODE_RXCONTINUOUS and (irq_flags & RX_DONE):
 			with self._hw_lock:
 				packet_len = self._spi_read(REG_13_RX_NB_BYTES)
@@ -331,7 +326,6 @@ class LoRa(object):
 				message = bytes(packet[4:]) if packet_len > 4 else b''
 
 				if self._my_address != header_to and BROADCAST_ADDRESS != header_to and self._receive_all is False:
-					self._interruptReceived = False
 					return
 
 				if self.crypto and len(message) % 16 == 0:
@@ -359,7 +353,6 @@ class LoRa(object):
 		elif self._mode == MODE_RXCONTINUOUS and (irq_flags & RX_TIMEOUT):
 			pass
 
-		self._interruptReceived = False
 		self._spi_write(REG_12_IRQ_FLAGS, 0xff)
 
 	def close(self):

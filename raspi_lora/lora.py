@@ -98,6 +98,7 @@ class LoRa(object):
 
 	def on_recv(self, message):
 		# This should be overridden by the user
+		print("should be overridden")
 		pass
 
 	def sleep(self):
@@ -343,4 +344,5 @@ while True:
 				break
 			lora.send_to_wait(lineData,255,retries=2)
 			print(lineData)
+
 

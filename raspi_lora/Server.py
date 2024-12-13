@@ -3,7 +3,7 @@ import sys
 import select
 import time
 import subprocess
-
+#import RPi.GPIO as GPIO
 
 #GPIO.setmode(GPIO.BCM)
 #GPIO.setup(25, GPIO.OUT)
@@ -20,7 +20,7 @@ try:
 		lora.on_recv = on_recv
 except Exception as e:
 		print(e)
-		GPIO.cleanup()
+#		GPIO.cleanup()
 		exit()
 
 lora.set_mode_rx()

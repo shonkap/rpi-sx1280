@@ -13,7 +13,7 @@ def on_recv(message):
 
 try:
 	print(ModemConfig.Bw125Cr45Sf128)
-	newlora = LoRa(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_power=14, acks=True, receive_all=True)
+	newlora = LoRa(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_power=14, acks=True, receive_all=False)
 
 	newlora.on_recv = on_recv
 except Exception as e:

@@ -11,8 +11,6 @@ import threading
 
 from constants import *
 
-_interruptReceived = False
-
 
 class ModemConfig(Enum):
 	Bw125Cr45Sf128 = (0x72, 0x74, 0x04) # Radiohead default
@@ -77,7 +75,7 @@ class LoRa(object):
 			raise ValueError(f"Invalid default mode: {default_mode}")
 		
 		# Setup the module
-		_interruptReceived = False
+		self._interruptReceived = False
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(25,GPIO.OUT)
 		GPIO.output(25,255)
@@ -143,7 +141,7 @@ class LoRa(object):
 
 	def _interrupt(self, channel):
 		print("interrupt")
-		_interruptReceived = True
+		self._interruptReceived = True
 
 	def set_mode_sleep(self):
 		if self._mode != MODE_SLEEP:
@@ -333,7 +331,7 @@ class LoRa(object):
 				message = bytes(packet[4:]) if packet_len > 4 else b''
 
 				if self._my_address != header_to and BROADCAST_ADDRESS != header_to and self._receive_all is False:
-					_interruptReceived = False
+					self._interruptReceived = False
 					return
 
 				if self.crypto and len(message) % 16 == 0:
@@ -351,7 +349,6 @@ class LoRa(object):
 
 				if not header_flags & FLAGS_ACK:
 					self.on_recv(self._last_payload)
-				_interruptReceived = False
 
 		elif self._mode == MODE_TX and (irq_flags & TX_DONE):
 			self._set_default_mode() # configured in init
@@ -362,6 +359,7 @@ class LoRa(object):
 		elif self._mode == MODE_RXCONTINUOUS and (irq_flags & RX_TIMEOUT):
 			pass
 
+		self._interruptReceived = False
 		self._spi_write(REG_12_IRQ_FLAGS, 0xff)
 
 	def close(self):

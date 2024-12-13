@@ -80,7 +80,7 @@ class LoRa(object):
 		_interruptReceived = False
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(self._interrupt_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._handle_interrupt)
+		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._interrupt) #_handle_interrupt)
 
 		# reset the board
 		if reset_pin:
@@ -140,6 +140,7 @@ class LoRa(object):
 		pass
 
 	def _interrupt(self, channel):
+		print("interrupt")
 		_interruptReceived = True
 
 	def set_mode_sleep(self):
@@ -330,6 +331,7 @@ class LoRa(object):
 				message = bytes(packet[4:]) if packet_len > 4 else b''
 
 				if self._my_address != header_to and BROADCAST_ADDRESS != header_to and self._receive_all is False:
+					_interruptReceived = False
 					return
 
 				if self.crypto and len(message) % 16 == 0:
@@ -347,6 +349,7 @@ class LoRa(object):
 
 				if not header_flags & FLAGS_ACK:
 					self.on_recv(self._last_payload)
+				_interruptReceived = False
 
 		elif self._mode == MODE_TX and (irq_flags & TX_DONE):
 			self._set_default_mode() # configured in init

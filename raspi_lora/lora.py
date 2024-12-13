@@ -11,6 +11,8 @@ import threading
 
 from constants import *
 
+_interruptReceived = False
+
 
 class ModemConfig(Enum):
 	Bw125Cr45Sf128 = (0x72, 0x74, 0x04) # Radiohead default
@@ -75,6 +77,7 @@ class LoRa(object):
 			raise ValueError(f"Invalid default mode: {default_mode}")
 		
 		# Setup the module
+		_interruptReceived = False
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(self._interrupt_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._handle_interrupt)
@@ -135,6 +138,9 @@ class LoRa(object):
 	def on_recv(self, message):
 		# This should be overridden by the user
 		pass
+
+	def _interrupt(self, channel):
+		_interruptReceived = True
 
 	def set_mode_sleep(self):
 		if self._mode != MODE_SLEEP:

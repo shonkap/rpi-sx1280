@@ -33,7 +33,8 @@ print(	"########################################\n",
      	"########################################");
 i = 0
 while True:
-
+		if self._interruptReceived:
+			newlora._handle_interrupt(1)
 		if select.select([sys.stdin],[],[], 0.1)[0]:
 			lineData = sys.stdin.readline().strip()
 			if lineData.lower() == "quit":

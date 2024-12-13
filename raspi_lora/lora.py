@@ -4,8 +4,10 @@ import math
 from collections import namedtuple
 from random import random
 
-import RPi.GPIO as GPIO
+import lgpio
 import spidev
+
+import threading
 
 from constants import *
 

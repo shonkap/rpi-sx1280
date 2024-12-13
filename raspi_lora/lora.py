@@ -79,6 +79,8 @@ class LoRa(object):
 		# Setup the module
 		_interruptReceived = False
 		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(25,GPIO.OUT)
+		GPIO.output(25,255)
 		GPIO.setup(self._interrupt_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 		GPIO.add_event_detect(self._interrupt_pin, GPIO.RISING, callback=self._interrupt) #_handle_interrupt)
 

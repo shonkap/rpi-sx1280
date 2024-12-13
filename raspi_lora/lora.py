@@ -7,10 +7,10 @@ import math
 from collections import namedtuple
 from random import random
 
-import RPi.GPIO as GPIO
+
 import spidev
 
-from constants import *
+from .constants import *
 
 
 class ModemConfig(Enum):
@@ -21,7 +21,7 @@ class ModemConfig(Enum):
 
 
 class LoRa(object):
-	def __init__(self, channel, interrupt, this_address, freq=915, tx_power=14,
+	def __init__(self, channel, this_address, freq=915, tx_power=14,
 				 modem_config=ModemConfig.Bw125Cr45Sf128, receive_all=False,
 				 acks=False, crypto=None):
 
@@ -46,11 +46,6 @@ class LoRa(object):
 		self.send_retries = 2
 		self.wait_packet_sent_timeout = 0.2
 		self.retry_timeout = 0.2
-
-		# Setup the module
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(self._interrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-		GPIO.add_event_detect(self._interrupt, GPIO.RISING, callback=self._handle_interrupt)
 
 		self.spi = spidev.SpiDev()
 		self.spi.open(0, self._channel)
@@ -297,13 +292,12 @@ class LoRa(object):
 		self._spi_write(REG_12_IRQ_FLAGS, 0xff)
 
 	def close(self):
-		GPIO.cleanup()
 		self.spi.close()
 
 
 #GPIO.setmode(GPIO.BCM)
 #GPIO.setup(25, GPIO.OUT)
-
+'''
 def on_recv(message):
 	print("From:",message.header_from)
 	print("Message:",message.message)
@@ -345,4 +339,4 @@ while True:
 			lora.send_to_wait(lineData,255,retries=2)
 			print(lineData)
 
-
+'''

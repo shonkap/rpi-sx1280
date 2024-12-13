@@ -27,7 +27,9 @@ status = newlora.send_to_wait(message, 5, retries=2) #255 is all
 if status is False:
 		print("No acknowledge from recipient")
 
-print("Press Enter to continue...");
+print(	"########################################/n",
+	"########################################/n","quit to exit/n",
+     	"########################################");
 i = 0
 while True:
 
@@ -38,6 +40,5 @@ while True:
 			newlora.send_to_wait(lineData,5,retries=2)
 			if status is False:
 					print("No acknowledge from recipient")
-			print(lineData)
 newlora.close()
 

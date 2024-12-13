@@ -295,7 +295,7 @@ class LoRa(object):
         encrypted_msg = self.crypto.encrypt(msg_bytes)
         return encrypted_msg
 
-    def _handle_interrupt(self, chip, gpio_pin, gpio_level, timestamp):
+    def _handle_interrupt(self, channel):
         irq_flags = self._spi_read(REG_12_IRQ_FLAGS)
 
         if self._mode == MODE_RXCONTINUOUS and (irq_flags & RX_DONE):

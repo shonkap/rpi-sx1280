@@ -4,7 +4,7 @@ import math
 from collections import namedtuple
 from random import random
 
-import lgpio
+import RPi.GPIO as GPIO
 import spidev
 
 import threading
@@ -50,7 +50,7 @@ class LoRa(object):
         self._freq = freq
         self._tx_power = tx_power
         self._modem_config = modem_config
-        self._receive_all = receive_all
+        self._receivel = receivel
         self._acks = acks
 
         self._my_address = my_address
@@ -75,18 +75,17 @@ class LoRa(object):
             raise ValueError(f"Invalid default mode: {default_mode}")
         
         # Setup the module
-        self.GPIO_handle = GPIO_handle = lgpio.gpiochip_open(0) # 0 is BCM2711, 1 is exp-gpio
-        lgpio.gpio_claim_input(GPIO_handle, self._interrupt_pin, lgpio.SET_PULL_DOWN) # We have to configure the pin as input first
-        self._al = lgpio.gpio_claim_alert(GPIO_handle, self._interrupt_pin, lgpio.RISING_EDGE) # we need to enable an alert on the rising edge first
-        self._cb = lgpio.callback(GPIO_handle, self._interrupt_pin, edge = lgpio.RISING_EDGE, func = self._handle_interrupt) # Then, we can connect a callback to the event
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self._interrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(self._interrupt, GPIO.RISING, callback=self._handle_interrupt)
 
         # reset the board
         if reset_pin:
-            lgpio.gpio_claim_output(GPIO_handle, reset_pin)
+            '''lgpio.gpio_claim_output(GPIO_handle, reset_pin)
             lgpio.gpio_write(GPIO_handle, reset_pin, lgpio.LOW)
             time.sleep(0.01)
             lgpio.gpio_write(GPIO_handle, reset_pin, lgpio.HIGH)
-            time.sleep(0.01)
+            time.sleep(0.01)'''
 
         
         self.spi = spidev.SpiDev()

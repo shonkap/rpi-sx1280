@@ -3,12 +3,12 @@ import sys
 import select
 import time
 import subprocess
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 
-loraInterrupt = 5
+#loraInterrupt = 5
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(loraInterrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+#GPIO.setmode(GPIO.BCM)
+#GPIO.setup(loraInterrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 def on_recv(message):
 	print("From:",message.header_from)
@@ -19,11 +19,11 @@ def on_recv(message):
 
 try:
 	lora = LoRa(1, 5, 2, modem_config=ModemConfig.Bw125Cr45Sf128, tx_power=14, acks=True, receive_all=True)
-	GPIO.add_event_detect(loraInterrupt, GPIO.RISING, callback=lora._handle_interrupt)	
+	#GPIO.add_event_detect(loraInterrupt, GPIO.RISING, callback=lora._handle_interrupt)	
 	lora.on_recv = on_recv
 except Exception as e:
 	print(e)
-	GPIO.cleanup()
+	#GPIO.cleanup()
 	exit()
 
 lora.set_mode_rx()
@@ -52,4 +52,4 @@ while True:
 			lora.send_to_wait(lineData,255,retries=2)
 			print(lineData)
 
-GPIO.cleanup()
+#GPIO.cleanup()

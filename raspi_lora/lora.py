@@ -7,91 +7,92 @@ from random import random
 import RPi.GPIO as GPIO
 import spidev
 
-from constants import *
+from .constants import *
 
 
 class ModemConfig(Enum):
-    Bw125Cr45Sf128 = (0x72, 0x74, 0x04)
-    Bw500Cr45Sf128 = (0x92, 0x74, 0x04)
-    Bw31_25Cr48Sf512 = (0x48, 0x94, 0x04)
-    Bw125Cr48Sf4096 = (0x78, 0xc4, 0x0c)
+	Bw125Cr45Sf128 = (0x72, 0x74, 0x04)
+	Bw500Cr45Sf128 = (0x92, 0x74, 0x04)
+	Bw31_25Cr48Sf512 = (0x48, 0x94, 0x04)
+	Bw125Cr48Sf4096 = (0x78, 0xc4, 0x0c)
 
 
 class LoRa(object):
-    def __init__(self, channel, interrupt, this_address, freq=915, tx_power=14,
-                 modem_config=ModemConfig.Bw125Cr45Sf128, receive_all=False,
-                 acks=False, crypto=None):
+	def __init__(self, channel, interrupt, this_address, freq=915, tx_power=14,
+				 modem_config=ModemConfig.Bw125Cr45Sf128, receive_all=False,
+				 acks=False, crypto=None):
 
-        self._channel = channel
-        self._interrupt = interrupt
+		self._channel = channel
+		self._interrupt = interrupt
 
-        self._mode = None
-        self._cad = None
-        self._freq = freq
-        self._tx_power = tx_power
-        self._modem_config = modem_config
-        self._receive_all = receive_all
-        self._acks = acks
+		self._mode = None
+		self._cad = None
+		self._freq = freq
+		self._tx_power = tx_power
+		self._modem_config = modem_config
+		self._receive_all = receive_all
+		self._acks = acks
 
-        self._this_address = this_address
-        self._last_header_id = 0
+		self._this_address = this_address
+		self._last_header_id = 0
 
-        self._last_payload = None
-        self.crypto = crypto
+		self._last_payload = None
+		self.crypto = crypto
 
-        self.cad_timeout = 0
-        self.send_retries = 2
-        self.wait_packet_sent_timeout = 0.2
-        self.retry_timeout = 0.2
+		self.cad_timeout = 0
+		self.send_retries = 2
+		self.wait_packet_sent_timeout = 0.2
+		self.retry_timeout = 0.2
 
-        # Setup the module
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self._interrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(self._interrupt, GPIO.RISING, callback=self._handle_interrupt)
+		# Setup the module
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(self._interrupt, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+		GPIO.add_event_detect(self._interrupt, GPIO.RISING, callback=self._handle_interrupt)
 
-        self.spi = spidev.SpiDev()
-        self.spi.open(0, self._channel)
-        self.spi.max_speed_hz = 5000000
+		self.spi = spidev.SpiDev()
+		self.spi.open(0, self._channel)
+		self.spi.max_speed_hz = 5000000
 
-        self._spi_write(REG_01_OP_MODE, MODE_SLEEP | LONG_RANGE_MODE)
-        time.sleep(0.1)
+		self._spi_write(REG_01_OP_MODE, MODE_SLEEP | LONG_RANGE_MODE)
+		time.sleep(0.1)
 
-        assert self._spi_read(REG_01_OP_MODE) == (MODE_SLEEP | LONG_RANGE_MODE), \
-            "LoRa initialization failed"
+		assert self._spi_read(REG_01_OP_MODE) == (MODE_SLEEP | LONG_RANGE_MODE), \
+			"LoRa initialization failed"
 
-        self._spi_write(REG_0E_FIFO_TX_BASE_ADDR, 0)
-        self._spi_write(REG_0F_FIFO_RX_BASE_ADDR, 0)
+		self._spi_write(REG_0E_FIFO_TX_BASE_ADDR, 0)
+		self._spi_write(REG_0F_FIFO_RX_BASE_ADDR, 0)
 
-        self.set_mode_idle()
+		self.set_mode_idle()
 
-        # set modem config (Bw125Cr45Sf128)
-        self._spi_write(REG_1D_MODEM_CONFIG1, self._modem_config.value[0])
-        self._spi_write(REG_1E_MODEM_CONFIG2, self._modem_config.value[1])
-        self._spi_write(REG_26_MODEM_CONFIG3, self._modem_config.value[2])
+		# set modem config (Bw125Cr45Sf128)
+		self._spi_write(REG_1D_MODEM_CONFIG1, self._modem_config.value[0])
+		self._spi_write(REG_1E_MODEM_CONFIG2, self._modem_config.value[1])
+		self._spi_write(REG_26_MODEM_CONFIG3, self._modem_config.value[2])
 
-        # set preamble length (8)
-        self._spi_write(REG_20_PREAMBLE_MSB, 0)
-        self._spi_write(REG_21_PREAMBLE_LSB, 8)
+		# set preamble length (8)
+		self._spi_write(REG_20_PREAMBLE_MSB, 0)
+		self._spi_write(REG_21_PREAMBLE_LSB, 8)
 
-        # set frequency
-        frf = int((self._freq * 1000000.0) / FSTEP)
-        self._spi_write(REG_06_FRF_MSB, (frf >> 16) & 0xff)
-        self._spi_write(REG_07_FRF_MID, (frf >> 8) & 0xff)
-        self._spi_write(REG_08_FRF_LSB, frf & 0xff)
+		# set frequency
+		frf = int((self._freq * 1000000.0) / FSTEP)
+		self._spi_write(REG_06_FRF_MSB, (frf >> 16) & 0xff)
+		self._spi_write(REG_07_FRF_MID, (frf >> 8) & 0xff)
+		self._spi_write(REG_08_FRF_LSB, frf & 0xff)
 
-        # Set tx power
-        if self._tx_power < 5:
-            self._tx_power = 5
-        if self._tx_power > 23:
-            self._tx_power = 23
+		# Set tx power
+		if self._tx_power < 5:
+			self._tx_power = 5
+		if self._tx_power > 23:
+			self._tx_power = 23
 
-        if self._tx_power < 20:
-            self._spi_write(REG_4D_PA_DAC, PA_DAC_ENABLE)
-            self._tx_power -= 3
-        else:
-            self._spi_write(REG_4D_PA_DAC, PA_DAC_DISABLE)
+		if self._tx_power < 20:
+			self._spi_write(REG_4D_PA_DAC, PA_DAC_ENABLE)
+			self._tx_power -= 3
+		else:
+			self._spi_write(REG_4D_PA_DAC, PA_DAC_DISABLE)
 
-        self._spi_write(REG_09_PA_CONFIG, PA_SELECT | (self._tx_power - 5))
+		self._spi_write(REG_09_PA_CONFIG, PA_SELECT | (self._tx_power - 5))
+
 
 
 	def on_recv(self, message):

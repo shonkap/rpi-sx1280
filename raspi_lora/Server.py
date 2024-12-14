@@ -10,19 +10,24 @@ isSatellite = True
 def process_recv(message, headerId):
 	global newlora
 	global clientID
-	cmd = message[1:]
-	if cmd[0:3].lower() == "cmd":
-		retOutput = subprocess.getstatusoutput(cmd[3:])
-		send_helper(retOutput,clientID)
-				
-def send_helper(message, lora_to)
-	global newlora
-	maxlen = 250
-	i = 0
 	
-	while len(message[i, i+maxlen]) > 0:
-		newlora.send_to_wait(message[i,i+maxlen],lora_to,retries=2)
+	if isinstance(message,bytes):
+		cmd = message.decode("utf-8")
+		if cmd[0:3].lower() == "cmd":
+			retOutput = subprocess.getstatusoutput(cmd[3:])
+			print(retOutput)
+			send_helper(retOutput[1],clientID)
+				
+def send_helper(message, lora_to):
+	global newlora
+	maxlen = 240
+	i = 0
+	while len(message[i: i+maxlen]) > 1:
+		newlora.send(message[i:i+maxlen],lora_to)
+		i = i + maxlen
+		print(i)
 		time.sleep(.1)
+	newlora.set_mode_rx()
 
 def on_recv(message):
 	print("From:",message.header_from)

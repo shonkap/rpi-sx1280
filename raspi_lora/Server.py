@@ -4,12 +4,24 @@ import time
 import subprocess
 
 from lora import LoRa, ModemConfig
+clientID = 5
+isSatellite = True
 
+def process_recv(message, headerId):
+	global clientID
+	cmd = message[1:]
+	if cmd[0:3].lower() == "cmd":
+		retOutput = subprocess.getstatusoutput(cmd[3:])
+		newlora.send_to_wait(retOutput,clientID,retries=2)
+	
 
 def on_recv(message):
 	print("From:",message.header_from)
 	print("Message:",message.message)
-
+	
+	global isSatellite
+	if isSatellite:
+		process_recv(message.message, message.header_id)
 
 try:
 	print(ModemConfig.Bw125Cr45Sf128)
@@ -22,8 +34,8 @@ except Exception as e:
 
 newlora.set_mode_rx()
 
-message = "Hello there!"
-status = newlora.send_to_wait(message, 5, retries=2) #255 is all
+message = "Client 2 Online!"
+status = newlora.send_to_wait(message, clientID, retries=2) #255 is all
 if status is False:
 		print("No acknowledge from recipient")
 
@@ -36,7 +48,7 @@ while True:
 			lineData = sys.stdin.readline().strip()
 			if lineData.lower() == "quit":
 				break
-			newlora.send_to_wait(lineData,5,retries=2)
+			newlora.send_to_wait(lineData,clientID,retries=2)
 			if status is False:
 					print("No acknowledge from recipient")
 newlora.close()

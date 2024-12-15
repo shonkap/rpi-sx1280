@@ -48,13 +48,16 @@ def send_helper(message, lora_to):
 	while len(message[i: i+maxlen]) > 1:
 		newlora.send(message[i:i+maxlen].encode('utf-8'),lora_to)
 		i = i + maxlen
-		print(i)
 		time.sleep(.1)
 	newlora.set_mode_rx()
 
 def on_recv(message):
 	print("From:",message.header_from)
-	print("Message:",message.message)
+	print("Message:")
+	if isinstance(message,bytes):
+		print(message.message.decode("utf-8"))
+	else:
+		print(message.message)
 	
 	global isSatellite
 	if isSatellite:

@@ -111,7 +111,7 @@ while True:
 			response = ''.join(output_buffer).strip()
 			output_buffer.clear()  # Clear the buffer after reading
 			new_output_event.clear()  # Reset the event
-			print(f"Sending response: {response}")
+			#print(f"Sending response: {response}")
 			send_helper(response, clientID)
 		time.sleep(0.1)  # Small delay to reduce CPU usage
 

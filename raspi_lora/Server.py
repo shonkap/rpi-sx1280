@@ -56,7 +56,7 @@ def on_recv(message):
 	print("Message:")
 	if isinstance(message.message,bytes):
 		print("bytes")
-		print(message.message.decode("utf-8"))
+		print(message.message.decode("utf-8").replace('\\n', '\n'))
 	else:
 		print(message.message)
 	

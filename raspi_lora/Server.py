@@ -38,7 +38,7 @@ def process_recv(message, headerId):
 	if isinstance(message,bytes):
 		cmd = message.decode("utf-8")
 		if cmd[0:3].lower() == "cmd":
-			shell.stdin.write(command[3:] + "\n")
+			shell.stdin.write(cmd[3:] + "\n")
 			shell.stdin.flush()
 				
 def send_helper(message, lora_to):

@@ -54,7 +54,7 @@ def send_helper(message, lora_to):
 def on_recv(message):
 	print("From:",message.header_from)
 	print("Message:")
-	if isinstance(message,bytes):
+	if isinstance(message.message,bytes):
 		print(message.message.decode("utf-8"))
 	else:
 		print(message.message)

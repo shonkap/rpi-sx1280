@@ -55,6 +55,7 @@ def on_recv(message):
 	print("From:",message.header_from)
 	print("Message:")
 	if isinstance(message.message,bytes):
+		print("bytes")
 		print(message.message.decode("utf-8"))
 	else:
 		print(message.message)

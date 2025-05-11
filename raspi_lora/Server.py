@@ -9,6 +9,9 @@ from lora import LoRa, ModemConfig
 clientID = 5
 isSatellite = True
 
+header_normal = "normal"
+header_image = "image"
+
 def start_shell():
     """Start a persistent shell subprocess."""
     shell = subprocess.Popen(
@@ -41,12 +44,12 @@ def process_recv(message, headerId):
 			shell.stdin.write(cmd[3:] + "\n")
 			shell.stdin.flush()
 				
-def send_helper(message, lora_to):
+def send_helper(message, lora_to, header_type = header_normal):
 	global newlora
-	maxlen = 240
+	maxlen = 240 - len(header_type)
 	i = 0
 	while len(message[i: i+maxlen]) > 1:
-		newlora.send(message[i:i+maxlen].encode('utf-8'),lora_to)
+		newlora.send(header_type.encode('utf-8') + b'||' + message[i:i+maxlen].encode('utf-8'),lora_to)
 		i = i + maxlen
 		time.sleep(.1)
 	newlora.set_mode_rx()
@@ -54,14 +57,18 @@ def send_helper(message, lora_to):
 def on_recv(message):
 	print("From:",message.header_from)
 	print("Message:")
+
+	#header was added so binary can be sent instead of just utf-8
+	header_str, payload = message.message.split(b'||', 1)
+	
 	if isinstance(message.message,bytes):
-		print(message.message.decode("utf-8").replace('\\n', '\n'))
+		print(payload.decode("utf-8").replace('\\n', '\n'))	#message.message.decode("utf-8").replace('\\n', '\n'))
 	else:
 		print(message.message)
 	
 	global isSatellite
 	if isSatellite:
-		process_recv(message.message, message.header_id)
+		process_recv(payload, message.header_id)	#message.message, message.header_id)
 
 try:
 	print(ModemConfig.Bw125Cr45Sf128)
